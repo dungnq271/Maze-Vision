@@ -3,7 +3,7 @@ from PIL import Image
 import numpy as np
 
 resolution = (1600, 800)
-img = np.array(Image.open('16 by 9 orthogonal maze.png').convert('RGB'))
+img = np.array(Image.open('maze/16x9.png').convert('RGB'))
 w, h, c = img.shape
 
 # cv2.namedWindow("Output")
