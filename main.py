@@ -56,7 +56,6 @@ def play(paths):
             maze_copy = maze.copy()
 
             if results.multi_hand_landmarks:
-                print(1)
                 for hand_landmarks in results.multi_hand_landmarks:
                     x1 = int(hand_landmarks.landmark[mp_hands.HandLandmark.INDEX_FINGER_TIP].x * 1600)
                     y1 = int(hand_landmarks.landmark[mp_hands.HandLandmark.INDEX_FINGER_TIP].y * 800)
@@ -72,7 +71,6 @@ def play(paths):
                     #                        radius=10, color=(139, 0, 0), thickness=-1)
                     # maze_copy = cv2.circle(maze_copy, (x3, y3),
                     #                        radius=10, color=(139, 0, 0), thickness=-1)
-                    print(maze_copy[y1, x1, 0])
                     # image = display_agent(image, agent_img, x1, y1, new_w, new_h)
                     # print(x1, y1)
                     mp_drawing.draw_landmarks(
