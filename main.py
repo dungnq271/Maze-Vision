@@ -3,6 +3,7 @@ import mediapipe as mp
 import numpy as np
 from PIL import Image
 from utils.utils import show_maze
+import time
 
 mp_drawing = mp.solutions.drawing_utils
 mp_drawing_styles = mp.solutions.drawing_styles
@@ -23,9 +24,10 @@ def display_agent(img, agent, x, y, w, h):
 
 def play(paths):
     new_w, new_h = 50, 50
+    pTime = 0
 
     maze = np.array(Image.open(paths).convert('RGB'))
-    maze = cv2.resize(maze, (1600, 800), cv2.INTER_CUBIC)
+    maze = cv2.resize(maze, (1600, 840), cv2.INTER_CUBIC)
     # agent_img = np.array(Image.open('robot.png').convert('RGB'))
     # agent_img = cv2.resize(agent_img, (new_w, new_h), interpolation=cv2.INTER_AREA)
     # agent_img = cv2.cvtColor(agent_img, cv2.COLOR_BGR2RGB)
@@ -67,26 +69,32 @@ def play(paths):
                     y3 = int(hand_landmarks.landmark[mp_hands.HandLandmark.RING_FINGER_TIP].y * 800)
                     maze_copy = cv2.circle(maze_copy, (x1, y1),
                                            radius=10, color=(139, 0, 0), thickness=-1)
-                    # maze_copy = cv2.circle(maze_copy, (x2, y2),
-                    #                        radius=10, color=(139, 0, 0), thickness=-1)
-                    # maze_copy = cv2.circle(maze_copy, (x3, y3),
-                    #                        radius=10, color=(139, 0, 0), thickness=-1)
-                    # image = display_agent(image, agent_img, x1, y1, new_w, new_h)
-                    # print(x1, y1)
-                    mp_drawing.draw_landmarks(
-                        image,
-                        hand_landmarks,
-                        mp_hands.HAND_CONNECTIONS,
-                        mp_drawing_styles.get_default_hand_landmarks_style(),
-                        mp_drawing_styles.get_default_hand_connections_style()
-                    )
+                    maze_copy = cv2.circle(maze_copy, (x2, y2),
+                                           radius=10, color=(139, 0, 0), thickness=-1)
+                    maze_copy = cv2.circle(maze_copy, (x3, y3),
+                                           radius=10, color=(139, 0, 0), thickness=-1)
 
+                    # image = display_agent(image, agent_img, x1, y1, new_w, new_h)
+                    # mp_drawing.draw_landmarks(
+                    #     image,
+                    #     hand_landmarks,
+                    #     mp_hands.HAND_CONNECTIONS,
+                    #     mp_drawing_styles.get_default_hand_landmarks_style(),
+                    #     mp_drawing_styles.get_default_hand_connections_style()
+                    # )
+
+            # cv2.putText(maze, str(int(fps)), (10, 70), cv2.FONT_HERSHEY_PLAIN, 3,
+            #             (255, 0, 255), 3)
             # Display image full screen
             cv2.namedWindow('Resized Image', cv2.WND_PROP_FULLSCREEN)
             cv2.setWindowProperty('Resized Image', cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
 
             # Flip the image horizontally for a selfie-view display.
-            cv2.imshow('Resized Image', cv2.flip(maze_copy, 1))
+            cTime = time.time()
+            if cTime - pTime >= 0.02:
+                cv2.imshow('Resized Image', cv2.flip(maze_copy, 1))
+
+            pTime = cTime
             if cv2.waitKey(5) & 0xFF == ord('q'):
                 cv2.destroyAllWindows()
                 break
