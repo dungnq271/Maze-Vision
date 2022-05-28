@@ -3,6 +3,7 @@ import mediapipe as mp
 import numpy as np
 from PIL import Image
 from check import *
+import time
 
 mp_drawing = mp.solutions.drawing_utils
 mp_drawing_styles = mp.solutions.drawing_styles
@@ -15,19 +16,8 @@ thickness = 2
 quit = False
 
 
-def display_agent(img, agent, x, y, w, h):
-    img_w = img.shape[0]
-    img_h = img.shape[1]
-    # left = x - w // 2 if x - w // 2 >= 0 else w // 2 + x
-    # right = x + w // 2 if x + w // 2 <= img_w else img_w
-    # upper = y - h // 2 if y - h // 2 >= 0 else 0
-    # below = y + h // 2 if y + h // 2 <= img_h else img_h
-    img[y, w] = agent
-    return img
-
-
 def play(path, level, show_camera=False):
-    start, win, dead = [False]*3
+    start, win, dead = [False] * 3
     x1, y1, x2, y2, x3, y3 = [0] * 6
     new_w, new_h = 1600, 840
     # new_w, new_h = 1000, 800
@@ -91,7 +81,6 @@ def play(path, level, show_camera=False):
                         )
             if (maze_copy[y1 - r - 5: y1 + r + 5, x1 - r - 5: x1 + r + 5] == 0).any() and start:
                 dead = True
-                print('dead')
 
             maze_copy = cv2.circle(maze_copy, (x1, y1),
                                    radius=r, color=(139, 0, 0), thickness=-1)
@@ -107,18 +96,21 @@ def play(path, level, show_camera=False):
             cv2.setWindowProperty('Resized Image', cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
 
             show_img = image if show_camera else maze_copy
+            # Flip the image horizontally for a selfie-view display.
             show_img = cv2.flip(show_img, 1)
             if not start:
                 show_img = cv2.putText(show_img, 'Put index finger at the entrance',
                                        org, font, fontScale, color, thickness, cv2.LINE_AA)
-            # Flip the image horizontally for a selfie-view display.
             cv2.imshow('Resized Image', show_img)
 
             if check_entrance(x1, y1, path):
                 start = True
 
             if check_destination(x1, y1, path) and start:
-                print('You win!!!')
+                show_img = cv2.putText(show_img, f'YOU PASS LEVEL {level}!',
+                                       (300, 400), font, 3, color, 4, cv2.LINE_AA)
+                cv2.imshow('Resized Image', show_img)
+                cv2.waitKey(100)
                 win = True
                 break
 
@@ -140,10 +132,9 @@ def live():
         while True:
             win = play(maze, level, show_camera=False)
             if win:
-                # level += 1
-                # if level >= 4:
-                #     level = 1
-                #     break
+                level += 1
+                if level >= 4:
+                    level = 1
                 break
             if quit:
                 cv2.destroyAllWindows()

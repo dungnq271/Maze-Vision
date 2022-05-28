@@ -24,7 +24,7 @@ def check_entrance(x, y, img=None):
 
 def check_destination(x, y, img=None):
     if img == '8x6':
-        if 809 < x < 985 and 834 < y < 840:
+        if 809 < x < 985 and 820 < y < 840:
             return True
     if img == '16x9':
         if 809 < x < 883 and 782 < y < 798:
