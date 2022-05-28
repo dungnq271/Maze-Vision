@@ -9,7 +9,7 @@ def check_wall(x, y, image):
     return False
 
 
-def check_destination(x, y, img=None):
+def check_entrance(x, y, img=None):
     if img == '8x6':
         if 613 < x < 789 and 0 < y < 10:
             return True
@@ -22,7 +22,7 @@ def check_destination(x, y, img=None):
     return False
 
 
-def check_entrance(x, y, img=None):
+def check_destination(x, y, img=None):
     if img == '8x6':
         if 809 < x < 985 and 834 < y < 840:
             return True

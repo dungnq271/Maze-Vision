@@ -7,6 +7,11 @@ from check import *
 mp_drawing = mp.solutions.drawing_utils
 mp_drawing_styles = mp.solutions.drawing_styles
 mp_hands = mp.solutions.hands
+font = cv2.FONT_HERSHEY_SIMPLEX
+org = (30, 50)
+fontScale = 1
+color = (139, 0, 0)
+thickness = 2
 quit = False
 
 
@@ -22,13 +27,11 @@ def display_agent(img, agent, x, y, w, h):
 
 
 def play(path, level, show_camera=False):
-    dead, win = False, False
+    start, win, dead = [False]*3
+    x1, y1, x2, y2, x3, y3 = [0] * 6
     new_w, new_h = 1600, 840
     # new_w, new_h = 1000, 800
     r = 10
-    x1, y1 = 0, 0
-    x2, y2 = 0, 0
-    x3, y3 = 0, 0
 
     maze = np.array(Image.open(f'maze/{path}.png').convert('RGB'))
     maze = cv2.resize(maze, (new_w, new_h), cv2.INTER_CUBIC)
@@ -39,9 +42,10 @@ def play(path, level, show_camera=False):
     cap = cv2.VideoCapture(0, cv2.CAP_DSHOW)
 
     with mp_hands.Hands(
-            model_complexity=0,
-            min_detection_confidence=0.5,
-            min_tracking_confidence=0.8) as hands:
+            static_image_mode=False,
+            model_complexity=1,
+            min_detection_confidence=0.7,
+            min_tracking_confidence=0.5) as hands:
         while cap.isOpened():
             success, image = cap.read()
             if not success:
@@ -85,9 +89,9 @@ def play(path, level, show_camera=False):
                             mp_drawing_styles.get_default_hand_landmarks_style(),
                             mp_drawing_styles.get_default_hand_connections_style()
                         )
-            # if (maze_copy[y1 - r - 5: y1 + r + 5, x1 - r - 5: x1 + r + 5] == 0).any():
-            #     dead = True
-            #     print('dead')
+            if (maze_copy[y1 - r - 5: y1 + r + 5, x1 - r - 5: x1 + r + 5] == 0).any() and start:
+                dead = True
+                print('dead')
 
             maze_copy = cv2.circle(maze_copy, (x1, y1),
                                    radius=r, color=(139, 0, 0), thickness=-1)
@@ -103,10 +107,17 @@ def play(path, level, show_camera=False):
             cv2.setWindowProperty('Resized Image', cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
 
             show_img = image if show_camera else maze_copy
+            show_img = cv2.flip(show_img, 1)
+            if not start:
+                show_img = cv2.putText(show_img, 'Put index finger at the entrance',
+                                       org, font, fontScale, color, thickness, cv2.LINE_AA)
             # Flip the image horizontally for a selfie-view display.
-            cv2.imshow('Resized Image', cv2.flip(show_img, 1))
+            cv2.imshow('Resized Image', show_img)
 
-            if check_destination(x1, y1, path):
+            if check_entrance(x1, y1, path):
+                start = True
+
+            if check_destination(x1, y1, path) and start:
                 print('You win!!!')
                 win = True
                 break
@@ -142,4 +153,3 @@ def live():
 
 if __name__ == '__main__':
     live()
-
