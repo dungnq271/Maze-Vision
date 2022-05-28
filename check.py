@@ -1,32 +1,39 @@
 import numpy as np
-#import time 
+# import time
 import cv2
-def check_wall(x,y,image):
-    if np.linalg.norm(image[y,x,:]-np.array([255,255,255])) <1e-9:
+
+
+def check_wall(x, y, image):
+    if np.linalg.norm(image[y, x, :] - np.array([255, 255, 255])) < 1e-9:
         return True
     return False
-def check_entrance(x,y,img = None):
+
+
+def check_destination(x, y, img=None):
+    if img == '8x6':
+        if 613 < x < 789 and 0 < y < 10:
+            return True
     if img == '16x9':
-        if x>709 and x<789 and y>0 and y<10:
+        if 709 < x < 789 and 0 < y < 10:
             return True
-        else:
-            return False
     if img == '32x18':
-        if x>755 and x<791 and y>0 and y<6:
+        if 755 < x < 791 and 0 < y < 6:
             return True
-        else:
-            return False
-def check_out(x,y,img = None):
+    return False
+
+
+def check_entrance(x, y, img=None):
+    if img == '8x6':
+        if 809 < x < 985 and 834 < y < 840:
+            return True
     if img == '16x9':
-        if x>809 and x<883 and y>782 and y<798:
+        if 809 < x < 883 and 782 < y < 798:
             return True
-        else:
-            return False
     if img == '32x18':
-        if x>807 and x<841 and y>791 and y<798:
+        if 807 < x < 841 and 791 < y < 798:
             return True
-        else:
-            return False
+    return False
+
 # x,y = 525,318
 # path = '16x9_wall.txt'
 # wall = np.loadtxt(path,delimiter=',')
@@ -39,7 +46,7 @@ def check_out(x,y,img = None):
 # 16x9
 # entrance x:710-788, y:0-10
 # out x:810-882, y:783-797 
- 
+
 # 32x18
 # entrance x:756-790, y:0-5
 # out x:808-840, y:792-797

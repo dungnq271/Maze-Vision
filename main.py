@@ -106,7 +106,7 @@ def play(path, level, show_camera=False):
             # Flip the image horizontally for a selfie-view display.
             cv2.imshow('Resized Image', cv2.flip(show_img, 1))
 
-            if check_out(x1, y1, path):
+            if check_destination(x1, y1, path):
                 print('You win!!!')
                 win = True
                 break
@@ -129,16 +129,17 @@ def live():
         while True:
             win = play(maze, level, show_camera=False)
             if win:
-                level += 1
-                if level >= 4:
-                    level = 1
-                    break
+                # level += 1
+                # if level >= 4:
+                #     level = 1
+                #     break
+                break
             if quit:
                 cv2.destroyAllWindows()
                 return
+    cv2.destroyAllWindows()
 
 
 if __name__ == '__main__':
     live()
-    cv2.destroyAllWindows()
 
