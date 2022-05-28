@@ -9,6 +9,7 @@ mp_drawing = mp.solutions.drawing_utils
 mp_drawing_styles = mp.solutions.drawing_styles
 mp_hands = mp.solutions.hands
 font = cv2.FONT_HERSHEY_SIMPLEX
+total = 0
 org = (30, 50)
 fontScale = 1
 color = (139, 0, 0)
@@ -16,8 +17,9 @@ thickness = 2
 quit = False
 
 
-def play(path, level, show_camera=False):
-    start, win, dead = [False] * 3
+def play(idx, path, level, show_camera=False):
+    s = []
+    start, win = [False] * 2
     x1, y1, x2, y2, x3, y3 = [0] * 6
     new_w, new_h = 1600, 840
     # new_w, new_h = 1000, 800
@@ -79,8 +81,6 @@ def play(path, level, show_camera=False):
                             mp_drawing_styles.get_default_hand_landmarks_style(),
                             mp_drawing_styles.get_default_hand_connections_style()
                         )
-            if (maze_copy[y1 - r - 5: y1 + r + 5, x1 - r - 5: x1 + r + 5] == 0).any() and start:
-                dead = True
 
             maze_copy = cv2.circle(maze_copy, (x1, y1),
                                    radius=r, color=(139, 0, 0), thickness=-1)
@@ -98,43 +98,68 @@ def play(path, level, show_camera=False):
             show_img = image if show_camera else maze_copy
             # Flip the image horizontally for a selfie-view display.
             show_img = cv2.flip(show_img, 1)
+
             if not start:
                 show_img = cv2.putText(show_img, 'Put index finger at the entrance',
                                        org, font, fontScale, color, thickness, cv2.LINE_AA)
-            cv2.imshow('Resized Image', show_img)
 
             if check_entrance(x1, y1, path):
                 start = True
 
+            if start:
+                s.append(time.time())
+                elapsed_time = round((time.time() - s[0]), 2)
+                show_img = cv2.putText(show_img, f'Time: {elapsed_time}',
+                                       org, font, fontScale, color, thickness, cv2.LINE_AA)
+            cv2.imshow('Resized Image', show_img)
+
             if check_destination(x1, y1, path) and start:
-                show_img = cv2.putText(show_img, f'YOU PASS LEVEL {level}!',
-                                       (300, 400), font, 3, color, 4, cv2.LINE_AA)
+                total_time = round((time.time() - s[0]), 2)
+                show_img = cv2.putText(show_img, f'YOU PASS MAP {idx} LEVEL {level}!',
+                                       (200, 400), font, 3, color, 4, cv2.LINE_AA)
+                show_img = cv2.putText(show_img, f'Elapsed time: {int(total_time//60)}m{total_time%60}s',
+                                       (350, 500), font, 2, color, 3, cv2.LINE_AA)
                 cv2.imshow('Resized Image', show_img)
-                cv2.waitKey(100)
+                cv2.waitKey(500)
+
+                if idx == 1 and level == 1:
+                    show_img = cv2.putText(gray.copy(), f'CONGRATULATION! YOU WIN!!!',
+                                           (100, 400), font, 3, color, 4, cv2.LINE_AA)
+                    show_img = cv2.putText(show_img, f'Total time: {int(total // 60)}m{total_time % 60}s',
+                                           (350, 500), font, 2, color, 3, cv2.LINE_AA)
+                    cv2.imshow('Resized Image', show_img)
+
+                cv2.waitKey(600)
                 win = True
+                # quit = True
+                del s
+                break
+
+            # check wall collision
+            if (maze[y1 - r - 5: y1 + r + 5, x1 - r - 5: x1 + r + 5] == 0).any() and start:
                 break
 
             if cv2.waitKey(5) & 0xFF == ord('q'):
                 global quit
                 quit = True
-                break
-
-            if dead:
+                cv2.destroyAllWindows()
                 break
 
     cap.release()
-    return win
+    return win, 0
 
 
 def live():
     level = 1
-    for maze in ['8x6', '16x9', '32x18']:
+    for i, maze in enumerate(['8x6', '16x9', '32x18'], 1):
         while True:
-            win = play(maze, level, show_camera=False)
+            win, total_time = play(i, maze, level, show_camera=False)
+            global total
+            total += total_time
             if win:
-                level += 1
-                if level >= 4:
-                    level = 1
+                # level += 1
+                # if level >= 4:
+                #     level = 1
                 break
             if quit:
                 cv2.destroyAllWindows()
