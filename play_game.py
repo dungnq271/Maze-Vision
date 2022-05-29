@@ -4,10 +4,12 @@ import numpy as np
 from PIL import Image
 from check import *
 import time
+from utils.effects import *
 
 mp_drawing = mp.solutions.drawing_utils
 mp_drawing_styles = mp.solutions.drawing_styles
 mp_hands = mp.solutions.hands
+window = 'MAZE'
 font = cv2.FONT_HERSHEY_SIMPLEX
 total = 0
 org = (30, 50)
@@ -92,15 +94,15 @@ def play(idx, path, level, show_camera=False):
                                        radius=r, color=(139, 0, 0), thickness=-1)
 
             # Display image full screen
-            cv2.namedWindow('Resized Image', cv2.WND_PROP_FULLSCREEN)
-            cv2.setWindowProperty('Resized Image', cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
+            cv2.namedWindow(window, cv2.WND_PROP_FULLSCREEN)
+            cv2.setWindowProperty(window, cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
 
             show_img = image if show_camera else maze_copy
             # Flip the image horizontally for a selfie-view display.
             show_img = cv2.flip(show_img, 1)
 
             if not start:
-                show_img = cv2.putText(show_img, 'Put index finger at the entrance',
+                show_img = cv2.putText(show_img, 'Put you finger(s) at the entrance',
                                        org, font, fontScale, color, thickness, cv2.LINE_AA)
 
             if check_entrance(x1, y1, path):
@@ -111,7 +113,7 @@ def play(idx, path, level, show_camera=False):
                 elapsed_time = round((time.time() - s[0]), 2)
                 show_img = cv2.putText(show_img, f'Time: {elapsed_time}',
                                        org, font, fontScale, color, thickness, cv2.LINE_AA)
-            cv2.imshow('Resized Image', show_img)
+            cv2.imshow(window, show_img)
 
             if check_destination(x1, y1, path) and start:
                 total_time = round((time.time() - s[0]), 2)
@@ -119,7 +121,7 @@ def play(idx, path, level, show_camera=False):
                                        (200, 400), font, 3, color, 4, cv2.LINE_AA)
                 show_img = cv2.putText(show_img, f'Elapsed time: {int(total_time // 60)}m{total_time % 60}s',
                                        (350, 500), font, 2, color, 3, cv2.LINE_AA)
-                cv2.imshow('Resized Image', show_img)
+                cv2.imshow(window, show_img)
                 cv2.waitKey(500)
 
                 if idx == 3 and level == 3:
@@ -127,7 +129,7 @@ def play(idx, path, level, show_camera=False):
                                            (100, 400), font, 3, color, 4, cv2.LINE_AA)
                     show_img = cv2.putText(show_img, f'Total time: {int(total // 60)}m{total_time % 60}s',
                                            (350, 500), font, 2, color, 3, cv2.LINE_AA)
-                    cv2.imshow('Resized Image', show_img)
+                    cv2.imshow(window, show_img)
 
                 cv2.waitKey(600)
                 win = True
@@ -136,11 +138,14 @@ def play(idx, path, level, show_camera=False):
                 break
 
             # check wall collision
-            if (maze[y1 - r - 5: y1 + r + 5, x1 - r - 5: x1 + r + 5] == 0).any() and start:
-                break
-            if level >= 2 and (maze[y2 - r - 5: y2 + r + 5, x2 - r - 5: x2 + r + 5] == 0).any() and start:
-                break
-            if level >= 3 and (maze[y3 - r - 5: y3 + r + 5, x3 - r - 5: x3 + r + 5] == 0).any() and start:
+            if ((maze[y1 - r - 5: y1 + r + 5, x1 - r - 5: x1 + r + 5] == 0).any()
+                or (level >= 2 and (maze[y2 - r - 5: y2 + r + 5, x2 - r - 5: x2 + r + 5] == 0).any())
+                or (level >= 3 and (maze[y3 - r - 5: y3 + r + 5, x3 - r - 5: x3 + r + 5] == 0).any())) \
+                    and start:
+                image, audio = add_effect(1600, 840)
+                cv2.imshow(window, image)
+                play_audio(audio)
+                cv2.waitKey(50)
                 break
 
             if cv2.waitKey(5) & 0xFF == ord('q'):

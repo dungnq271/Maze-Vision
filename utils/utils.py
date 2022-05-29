@@ -7,3 +7,4 @@ def display_agent(img, agent, x, y, w, h):
     # below = y + h // 2 if y + h // 2 <= img_h else img_h
     img[y, w] = agent
     return img
+
