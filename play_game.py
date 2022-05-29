@@ -117,12 +117,12 @@ def play(idx, path, level, show_camera=False):
                 total_time = round((time.time() - s[0]), 2)
                 show_img = cv2.putText(show_img, f'YOU PASS MAP {idx} LEVEL {level}!',
                                        (200, 400), font, 3, color, 4, cv2.LINE_AA)
-                show_img = cv2.putText(show_img, f'Elapsed time: {int(total_time//60)}m{total_time%60}s',
+                show_img = cv2.putText(show_img, f'Elapsed time: {int(total_time // 60)}m{total_time % 60}s',
                                        (350, 500), font, 2, color, 3, cv2.LINE_AA)
                 cv2.imshow('Resized Image', show_img)
                 cv2.waitKey(500)
 
-                if idx == 1 and level == 1:
+                if idx == 3 and level == 3:
                     show_img = cv2.putText(gray.copy(), f'CONGRATULATION! YOU WIN!!!',
                                            (100, 400), font, 3, color, 4, cv2.LINE_AA)
                     show_img = cv2.putText(show_img, f'Total time: {int(total // 60)}m{total_time % 60}s',
@@ -137,6 +137,10 @@ def play(idx, path, level, show_camera=False):
 
             # check wall collision
             if (maze[y1 - r - 5: y1 + r + 5, x1 - r - 5: x1 + r + 5] == 0).any() and start:
+                break
+            if level >= 2 and (maze[y2 - r - 5: y2 + r + 5, x2 - r - 5: x2 + r + 5] == 0).any() and start:
+                break
+            if level >= 3 and (maze[y3 - r - 5: y3 + r + 5, x3 - r - 5: x3 + r + 5] == 0).any() and start:
                 break
 
             if cv2.waitKey(5) & 0xFF == ord('q'):
@@ -157,10 +161,10 @@ def live():
             global total
             total += total_time
             if win:
-                # level += 1
-                # if level >= 4:
-                #     level = 1
-                break
+                level += 1
+                if level >= 4:
+                    level = 1
+                    break
             if quit:
                 cv2.destroyAllWindows()
                 return
