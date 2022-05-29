@@ -102,7 +102,7 @@ def play(idx, path, level, show_camera=False):
             show_img = cv2.flip(show_img, 1)
 
             if not start:
-                show_img = cv2.putText(show_img, 'Put you finger(s) at the entrance',
+                show_img = cv2.putText(show_img, 'Put your finger(s) at the entrance',
                                        org, font, fontScale, color, thickness, cv2.LINE_AA)
 
             if check_entrance(x1, y1, path):

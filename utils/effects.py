@@ -4,7 +4,6 @@ from random import randint
 import cv2
 from PIL import Image
 import numpy as np
-from pygame import mixer
 import vlc
 
 images_dir = 'images/'
