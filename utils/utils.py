@@ -15,6 +15,6 @@ def display_agent(img, agent, x, y, w, h):
 
 
 def load_image(path, w, h):
-    image = np.array(Image.open(path).convert('RGB'))
+    image = np.array(Image.open(path))
     image = cv2.resize(image, (w, h), cv2.INTER_CUBIC)
     return image

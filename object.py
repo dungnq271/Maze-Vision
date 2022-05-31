@@ -68,10 +68,17 @@ class Object:
         x1, x2 = self.x - self.w // 2, self.x + self.w // 2
 
         # overlay transparent image
-        env[y1:y2, x1:x2] = env[y1:y2, x1:x2] * (1 - img[:, :, 3:] / 255) + \
-                            img[:, :, :3] * (img[:, :, 3:] / 255)
+        # env[y1:y2, x1:x2] = env[y1:y2, x1:x2] * (1 - img[:, :, 3:] / 255) + \
+        #                     img[:, :, :3] * (img[:, :, 3:] / 255)
+        env = overlay(img, env, y1, y2, x1, x2)
         # env[y1:y2, x1:x2] = img
         return env
+
+
+def overlay(img, env, y1, y2, x1, x2):
+    env[y1:y2, x1:x2] = env[y1:y2, x1:x2] * (1 - img[:, :, 3:] / 255) + \
+                        img[:, :, :3] * (img[:, :, 3:] / 255)
+    return env
 
 
 class Enemy(Object):
