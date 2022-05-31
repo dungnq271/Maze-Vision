@@ -18,6 +18,8 @@ org = (10, 50)
 fontScale = 1
 color = (51, 153, 255)
 thickness = 2
+max_level = 3
+win_map = 3
 
 
 def play(idx, path, level, difficulty, show_camera=False):
@@ -37,10 +39,10 @@ def play(idx, path, level, difficulty, show_camera=False):
     quit = False
 
     maze = load_image(f'maze/{path}.png', new_w, new_h)
-    heart = load_image('heart.jpg', 40, 40)
+    heart = load_image('symbols/heart.jpg', 40, 40)
     heart = cv2.cvtColor(heart, cv2.COLOR_BGR2RGB)
-    agent = Object('robot.png', r, r)
-    enemy = Enemy('ghost.png', randint(0, new_h), randint(0, new_w), r, r, difficulty)
+    agent = Object('symbols/robot.png', r, r)
+    enemy = Enemy('symbols/ghost.png', randint(0, new_h), randint(0, new_w), r, r, difficulty)
 
     # For webcam input:
     cap = cv2.VideoCapture(0, cv2.CAP_DSHOW)
@@ -135,17 +137,17 @@ def play(idx, path, level, difficulty, show_camera=False):
             if check_destination(x1, y1, r, path) and start:
                 total_time = round((time.time() - s[0]), 2)
                 show_img = cv2.putText(show_img, f'YOU PASS MAP {idx} LEVEL {level}!',
-                                       (200, 400), font, 3, color, 4, cv2.LINE_AA)
-                show_img = cv2.putText(show_img, f'Elapsed time: {int(total_time // 60)}m{total_time % 60}s',
-                                       (350, 500), font, 2, color, 3, cv2.LINE_AA)
+                                       (300, 400), font, 3, color, 4, cv2.LINE_AA)
+                show_img = cv2.putText(show_img, f'Time: {int(total_time // 60)}m {total_time % 60}s',
+                                       (600, 500), font, 2, color, 3, cv2.LINE_AA)
                 cv2.imshow(window, show_img)
-                cv2.waitKey(500)
+                cv2.waitKey(2000)
 
-                if idx == 3 and level == 3:
+                if idx == win_map and level == max_level-1:
                     show_img = cv2.putText(gray.copy(), f'CONGRATULATION! YOU WIN!!!',
                                            (100, 400), font, 3, color, 4, cv2.LINE_AA)
-                    show_img = cv2.putText(show_img, f'Total time: {int(total // 60)}m{total_time % 60}s',
-                                           (350, 500), font, 2, color, 3, cv2.LINE_AA)
+                    # show_img = cv2.putText(show_img, f'Total time: {int(total // 60)}m{total_time % 60}s',
+                    #                        (350, 500), font, 2, color, 3, cv2.LINE_AA)
                     cv2.imshow(window, show_img)
 
                 cv2.waitKey(600)
@@ -154,7 +156,7 @@ def play(idx, path, level, difficulty, show_camera=False):
                 del s
                 break
 
-            # check wall collision
+            # check collision
             if start and\
                     ((maze[y1 - r + margin: y1 + r - margin, x1 - r + margin: x1 + r - margin] == 0).any()
                      or (level >= 2 and
@@ -163,7 +165,7 @@ def play(idx, path, level, difficulty, show_camera=False):
                          and (maze[y3 - r + margin: y3 + r - margin, x3 - r + margin: x3 + r - margin] == 0).any())):
                 hpt -= 1
                 if hpt == 0:
-                    enemy = Enemy('ghost.png', randint(0, new_h), randint(0, new_w), r, r, difficulty)
+                    enemy = Enemy('symbols/ghost.png', randint(0, new_h), randint(0, new_w), r, r, difficulty)
                     break
 
             if start and difficulty[0] != 'EASY' and enemy.collide(agent):
@@ -173,7 +175,7 @@ def play(idx, path, level, difficulty, show_camera=False):
                     cv2.imshow(window, image)
                     play_audio(audio)
                     cv2.waitKey(50)
-                    enemy = Enemy('ghost.png', randint(0, new_h), randint(0, new_w), r, r, difficulty)
+                    enemy = Enemy('symbols/ghost.png', randint(0, new_h), randint(0, new_w), r, r, difficulty)
                     break
 
             if cv2.waitKey(5) & 0xFF == ord('q'):
@@ -181,7 +183,7 @@ def play(idx, path, level, difficulty, show_camera=False):
                 cv2.destroyAllWindows()
                 break
 
-    cap.release()
+    # cap.release()
     return win, total_time, quit
 
 
@@ -197,7 +199,7 @@ def live(difficulty=None):
             total += total_time
             if win:
                 level += 1
-                if level >= 3:
+                if level >= max_level:
                     level = 1
                     break
             if q:

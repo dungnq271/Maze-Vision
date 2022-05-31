@@ -4,7 +4,7 @@ from matplotlib import image
 from matplotlib.backend_bases import MouseButton
 import cv2
 
-img = image.imread('maze/8x6.png')
+img = image.imread('maze/32x18.png')
 img = cv2.resize(img, (1600, 840), cv2.INTER_CUBIC)
 
 
