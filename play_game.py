@@ -196,7 +196,7 @@ def play(idx, path, level, difficulty, show_camera=False, test=False):
                         image, audio = add_effect(new_w, new_h)
                         cv2.imshow(window, image)
                         play_audio(audio)
-                        cv2.waitKey(50)
+                        cv2.waitKey(500)
                         enemy = Enemy('symbols/ghost.png', randint(0, new_h), randint(0, new_w), r, r, difficulty)
                         break
 
