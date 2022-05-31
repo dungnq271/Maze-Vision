@@ -5,6 +5,8 @@ from PIL import Image
 from check import *
 import time
 from utils.effects import *
+from utils.utils import *
+from object import *
 
 mp_drawing = mp.solutions.drawing_utils
 mp_drawing_styles = mp.solutions.drawing_styles
@@ -12,31 +14,36 @@ mp_hands = mp.solutions.hands
 window = 'MAZE'
 font = cv2.FONT_HERSHEY_SIMPLEX
 total = 0
-org = (30, 50)
+org = (10, 50)
 fontScale = 1
-color = (139, 0, 0)
+color = (51, 153, 255)
 thickness = 2
-quit = False
 
 
-def play(idx, path, level, show_camera=False):
+def play(idx, path, level, difficulty, show_camera=False):
     s = []
     start, win = [False] * 2
     x1, y1, x2, y2, x3, y3 = [0] * 6
     new_w, new_h = 1600, 840
     # new_w, new_h = 1000, 800
-    r = 10
+    r = 40
+    margin = r - 20
+    hpt = 3
+    total_time = 0
+    quit = False
 
-    maze = np.array(Image.open(f'maze/{path}.png').convert('RGB'))
-    maze = cv2.resize(maze, (new_w, new_h), cv2.INTER_CUBIC)
-    # agent_img = np.array(Image.open('robot.png').convert('RGB'))
-    # agent_img = cv2.resize(agent_img, (10, 10), interpolation=cv2.INTER_AREA)
+    maze = load_image(f'maze/{path}.png', new_w, new_h)
+    heart = load_image('heart.jpg', 40, 40)
+    heart = cv2.cvtColor(heart, cv2.COLOR_BGR2RGB)
+    agent = Object('robot.png', r, r)
+    enemy = Enemy('ghost.png', randint(0, new_h), randint(0, new_w), r, r, difficulty)
 
     # For webcam input:
     cap = cv2.VideoCapture(0, cv2.CAP_DSHOW)
 
     with mp_hands.Hands(
             static_image_mode=False,
+            max_num_hands=1,
             model_complexity=1,
             min_detection_confidence=0.7,
             min_tracking_confidence=0.5) as hands:
@@ -52,16 +59,12 @@ def play(idx, path, level, show_camera=False):
             image.flags.writeable = False
             gray = cv2.cvtColor(maze, cv2.COLOR_BGR2GRAY)
             image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-            # image1 = cv2.resize(image, (image.shape[1] * 10, image.shape[0] * 10), cv2.INTER_CUBIC)
             results = hands.process(image)
 
-            # image_flip = cv2.flip(image, 1)
-            # results_flip = hands.process(image_flip)
-
             # Draw the hand annotations on the image.
-            image.flags.writeable = True
-            image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
-            maze_copy = gray.copy()
+            # image.flags.writeable = True
+            # image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
+            maze_copy = maze.copy()
 
             if results.multi_hand_landmarks:
                 for hand_landmarks in results.multi_hand_landmarks:
@@ -84,11 +87,17 @@ def play(idx, path, level, show_camera=False):
                             mp_drawing_styles.get_default_hand_connections_style()
                         )
 
-            maze_copy = cv2.circle(maze_copy, (x1, y1),
-                                   radius=r, color=(139, 0, 0), thickness=-1)
+            # maze_copy = cv2.circle(maze_copy, (x1, y1),
+            #                        radius=r, color=(139, 0, 0), thickness=-1)
+            maze_copy = agent.display(maze_copy, x1, y1)
+            if start:
+                if difficulty[0] != 'EASY':
+                    maze_copy = enemy.display(maze_copy, enemy.x, enemy.y)
+
             if level >= 2:
-                maze_copy = cv2.circle(maze_copy, (x2, y2),
-                                       radius=r, color=(139, 0, 0), thickness=-1)
+                maze_copy = agent.display(maze_copy, x2, y2)
+                # maze_copy = cv2.circle(maze_copy, (x2, y2),
+                #                        radius=r, color=(139, 0, 0), thickness=-1)
             if level >= 3:
                 maze_copy = cv2.circle(maze_copy, (x3, y3),
                                        radius=r, color=(139, 0, 0), thickness=-1)
@@ -102,17 +111,21 @@ def play(idx, path, level, show_camera=False):
             show_img = cv2.flip(show_img, 1)
 
             if not start:
-                show_img = cv2.putText(show_img, 'Put your finger(s) at the entrance',
+                show_img = cv2.putText(show_img, 'Put your fingertip(s) at the entrance',
                                        org, font, fontScale, color, thickness, cv2.LINE_AA)
 
             if check_entrance(x1, y1, path):
                 start = True
 
             if start:
+                enemy.move_towards_player(agent)
                 s.append(time.time())
                 elapsed_time = round((time.time() - s[0]), 2)
                 show_img = cv2.putText(show_img, f'Time: {elapsed_time}',
                                        org, font, fontScale, color, thickness, cv2.LINE_AA)
+                show_img[20:60, 1520:1560] = heart
+                show_img = cv2.putText(show_img, str(hpt),
+                                       (1500, 50), font, fontScale, color, thickness, cv2.LINE_AA)
             cv2.imshow(window, show_img)
 
             if check_destination(x1, y1, path) and start:
@@ -138,39 +151,52 @@ def play(idx, path, level, show_camera=False):
                 break
 
             # check wall collision
-            if ((maze[y1 - r - 5: y1 + r + 5, x1 - r - 5: x1 + r + 5] == 0).any()
-                or (level >= 2 and (maze[y2 - r - 5: y2 + r + 5, x2 - r - 5: x2 + r + 5] == 0).any())
-                or (level >= 3 and (maze[y3 - r - 5: y3 + r + 5, x3 - r - 5: x3 + r + 5] == 0).any())) \
-                    and start:
-                image, audio = add_effect(1600, 840)
-                cv2.imshow(window, image)
-                play_audio(audio)
-                cv2.waitKey(50)
-                break
+            if start and\
+                    ((maze[y1 - r + margin: y1 + r - margin, x1 - r + margin: x1 + r - margin] == 0).any()
+                     or (level >= 2 and
+                         (maze[y2 - r + margin: y2 + r - margin, x2 - r + margin: x2 + r - margin] == 0).any())
+                     or (level >= 3
+                         and (maze[y3 - r + margin: y3 + r - margin, x3 - r + margin: x3 + r - margin] == 0).any())):
+                # image, audio = add_effect(1600, 840)
+                # cv2.imshow(window, image)
+                # play_audio(audio)
+                # cv2.waitKey(50)
+                hpt -= 1
+                if hpt == 0:
+                    enemy = Enemy('ghost.png', randint(0, new_h), randint(0, new_w), r, r, difficulty)
+                    break
+
+            if start and difficulty[0] != 'EASY' and enemy.collide(agent):
+                hpt -= 1
+                if hpt == 0:
+                    enemy = Enemy('ghost.png', randint(0, new_h), randint(0, new_w), r, r, difficulty)
+                    break
 
             if cv2.waitKey(5) & 0xFF == ord('q'):
-                global quit
                 quit = True
                 cv2.destroyAllWindows()
                 break
 
     cap.release()
-    return win, 0
+    return win, total_time, quit
 
 
-def live():
+def live(difficulty=None):
+    if difficulty is None:
+        difficulty = ['MEDIUM']
+
     level = 1
     for i, maze in enumerate(['8x6', '16x9', '32x18'], 1):
         while True:
-            win, total_time = play(i, maze, level, show_camera=False)
+            win, total_time, q = play(i, maze, level, difficulty, show_camera=False)
             global total
             total += total_time
             if win:
                 level += 1
-                if level >= 4:
+                if level >= 3:
                     level = 1
                     break
-            if quit:
+            if q:
                 cv2.destroyAllWindows()
                 return
     cv2.destroyAllWindows()
