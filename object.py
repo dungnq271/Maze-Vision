@@ -1,5 +1,3 @@
-from typing import List
-
 from utils.utils import *
 from random import randint
 import math
@@ -12,6 +10,10 @@ def distance(x1, y1, x2, y2):
 class Object:
     def __init__(self, img_path, w, h):
         self.img = load_image(img_path, w, h)
+        image = np.array(Image.open(img_path))
+        self.image = image
+        self.img = cv2.resize(image, (w, h), cv2.INTER_CUBIC)
+        self.img_path = img_path
         self.w = w
         self.h = h
         self.w_range = None
@@ -62,7 +64,13 @@ class Object:
         # print(img.shape)
         #
         # env[h_range[0]: h_range[1], w_range[0]: w_range[1]] = img
-        env[self.y - self.h // 2:self.y + self.h // 2, self.x - self.w // 2:self.x + self.w // 2] = img
+        y1, y2 = self.y - self.h // 2, self.y + self.h // 2
+        x1, x2 = self.x - self.w // 2, self.x + self.w // 2
+
+        # overlay transparent image
+        env[y1:y2, x1:x2] = env[y1:y2, x1:x2] * (1 - img[:, :, 3:] / 255) + \
+                            img[:, :, :3] * (img[:, :, 3:] / 255)
+        # env[y1:y2, x1:x2] = img
         return env
 
 
@@ -90,7 +98,3 @@ class Enemy(Object):
     def collide(self, player):
         if distance(self.x, self.y, player.x, player.y) < self.w:
             return True
-
-
-
-

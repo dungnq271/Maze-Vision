@@ -9,28 +9,28 @@ def check_wall(x, y, image):
     return False
 
 
-def check_entrance(x, y, img=None):
+def check_entrance(x, y, r, img=None):
     if img == '8x6':
-        if 613 < x < 789 and -10 < y < 10:
+        if 613 < x < 789 and r+3 < y < r+10:
             return True
     if img == '16x9':
-        if 709 < x < 789 and -10 < y < 10:
+        if 709 < x < 789 and r+3 < y < r+10:
             return True
     if img == '32x18':
-        if 755 < x < 791 and -6 < y < 6:
+        if 755 < x < 791 and r+3 < y < r+10:
             return True
     return False
 
 
-def check_destination(x, y, img=None):
+def check_destination(x, y, r, img=None):
     if img == '8x6':
-        if 809 < x < 985 and 820 < y < 850:
+        if 809 < x < 985 and 820-r < y < 850:
             return True
     if img == '16x9':
-        if 809 < x < 883 and 782 < y < 808:
+        if 809 < x < 883 and 782-r < y < 808:
             return True
     if img == '32x18':
-        if 807 < x < 841 and 791 < y < 808:
+        if 807 < x < 841 and 791-r < y < 808:
             return True
     return False
 

@@ -26,7 +26,11 @@ def play(idx, path, level, difficulty, show_camera=False):
     x1, y1, x2, y2, x3, y3 = [0] * 6
     new_w, new_h = 1600, 840
     # new_w, new_h = 1000, 800
-    r = 40
+    if path == '32x18':
+        r = 20
+    else:
+        r = 40
+
     margin = r - 20
     hpt = 3
     total_time = 0
@@ -67,25 +71,25 @@ def play(idx, path, level, difficulty, show_camera=False):
             maze_copy = maze.copy()
 
             if results.multi_hand_landmarks:
-                for hand_landmarks in results.multi_hand_landmarks:
-                    x1 = int(hand_landmarks.landmark[mp_hands.HandLandmark.INDEX_FINGER_TIP].x * new_w)
-                    y1 = int(hand_landmarks.landmark[mp_hands.HandLandmark.INDEX_FINGER_TIP].y * new_h)
+                hand_landmarks = results.multi_hand_landmarks[0]
+                x1 = int(hand_landmarks.landmark[mp_hands.HandLandmark.INDEX_FINGER_TIP].x * new_w)
+                y1 = int(hand_landmarks.landmark[mp_hands.HandLandmark.INDEX_FINGER_TIP].y * new_h)
 
-                    x2 = int(hand_landmarks.landmark[mp_hands.HandLandmark.MIDDLE_FINGER_TIP].x * new_w)
-                    y2 = int(hand_landmarks.landmark[mp_hands.HandLandmark.MIDDLE_FINGER_TIP].y * new_h)
+                x2 = int(hand_landmarks.landmark[mp_hands.HandLandmark.MIDDLE_FINGER_TIP].x * new_w)
+                y2 = int(hand_landmarks.landmark[mp_hands.HandLandmark.MIDDLE_FINGER_TIP].y * new_h)
 
-                    x3 = int(hand_landmarks.landmark[mp_hands.HandLandmark.RING_FINGER_TIP].x * new_w)
-                    y3 = int(hand_landmarks.landmark[mp_hands.HandLandmark.RING_FINGER_TIP].y * new_h)
+                x3 = int(hand_landmarks.landmark[mp_hands.HandLandmark.RING_FINGER_TIP].x * new_w)
+                y3 = int(hand_landmarks.landmark[mp_hands.HandLandmark.RING_FINGER_TIP].y * new_h)
 
-                    # image = display_agent(image, agent_img, x1, y1, new_w, new_h)
-                    if show_camera:
-                        mp_drawing.draw_landmarks(
-                            image,
-                            hand_landmarks,
-                            mp_hands.HAND_CONNECTIONS,
-                            mp_drawing_styles.get_default_hand_landmarks_style(),
-                            mp_drawing_styles.get_default_hand_connections_style()
-                        )
+                # image = display_agent(image, agent_img, x1, y1, new_w, new_h)
+                if show_camera:
+                    mp_drawing.draw_landmarks(
+                        image,
+                        hand_landmarks,
+                        mp_hands.HAND_CONNECTIONS,
+                        mp_drawing_styles.get_default_hand_landmarks_style(),
+                        mp_drawing_styles.get_default_hand_connections_style()
+                    )
 
             # maze_copy = cv2.circle(maze_copy, (x1, y1),
             #                        radius=r, color=(139, 0, 0), thickness=-1)
@@ -114,7 +118,7 @@ def play(idx, path, level, difficulty, show_camera=False):
                 show_img = cv2.putText(show_img, 'Put your fingertip(s) at the entrance',
                                        org, font, fontScale, color, thickness, cv2.LINE_AA)
 
-            if check_entrance(x1, y1, path):
+            if check_entrance(x1, y1, r, path):
                 start = True
 
             if start:
@@ -128,7 +132,7 @@ def play(idx, path, level, difficulty, show_camera=False):
                                        (1500, 50), font, fontScale, color, thickness, cv2.LINE_AA)
             cv2.imshow(window, show_img)
 
-            if check_destination(x1, y1, path) and start:
+            if check_destination(x1, y1, r, path) and start:
                 total_time = round((time.time() - s[0]), 2)
                 show_img = cv2.putText(show_img, f'YOU PASS MAP {idx} LEVEL {level}!',
                                        (200, 400), font, 3, color, 4, cv2.LINE_AA)
@@ -157,10 +161,6 @@ def play(idx, path, level, difficulty, show_camera=False):
                          (maze[y2 - r + margin: y2 + r - margin, x2 - r + margin: x2 + r - margin] == 0).any())
                      or (level >= 3
                          and (maze[y3 - r + margin: y3 + r - margin, x3 - r + margin: x3 + r - margin] == 0).any())):
-                # image, audio = add_effect(1600, 840)
-                # cv2.imshow(window, image)
-                # play_audio(audio)
-                # cv2.waitKey(50)
                 hpt -= 1
                 if hpt == 0:
                     enemy = Enemy('ghost.png', randint(0, new_h), randint(0, new_w), r, r, difficulty)
@@ -169,6 +169,10 @@ def play(idx, path, level, difficulty, show_camera=False):
             if start and difficulty[0] != 'EASY' and enemy.collide(agent):
                 hpt -= 1
                 if hpt == 0:
+                    image, audio = add_effect(1600, 840)
+                    cv2.imshow(window, image)
+                    play_audio(audio)
+                    cv2.waitKey(50)
                     enemy = Enemy('ghost.png', randint(0, new_h), randint(0, new_w), r, r, difficulty)
                     break
 
