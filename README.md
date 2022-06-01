@@ -9,7 +9,7 @@ https://user-images.githubusercontent.com/51025577/171326206-d20d6e00-0be6-4a03-
 2. To start playing, simply put the fingertips (index finger and middle finger) at the entrance on the top of the maze
 3. Navigate the maze to the destination without touching the wall 🧱 or the ghost 👻
 4. Keep playing until you win all the maps and levels
-5. Have fun 😉
+5. Enjoy playing and have fun 😃
 
 ## Setup
 Follow these steps:
@@ -24,5 +24,3 @@ Follow these steps:
 1. Open ```command prompt``` and ```cd path_to_repo```
 2. ```conda activate mvision```
 3. Run the following command ```python start_menu.py```
-
-Enjoy playing 😃
