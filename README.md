@@ -4,7 +4,7 @@ Our project for Club's Day at FPT University
 
 https://user-images.githubusercontent.com/51025577/171326206-d20d6e00-0be6-4a03-9184-7ebcf3f12578.mp4
 
-## How to play
+## Guide
 1. There are 3 levels of difficulty: easy, medium, and hard
 2. To start playing, simply put the fingertips (index finger and middle finger) at the entrance on the top of the maze
 3. Navigate the maze to the destination without touching the wall 🧱 or the ghost 👻
@@ -20,7 +20,7 @@ Follow these steps:
 5. Run ```pip install -r requirements.txt``` to install dependencies
 
 
-## Play
+## How To Play
 1. Open ```command prompt``` and ```cd path_to_repo```
 2. ```conda activate mvision```
 3. Run the following command ```python start_menu.py```
