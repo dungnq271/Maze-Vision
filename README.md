@@ -1,4 +1,4 @@
-# Cross Maze using Fingertips
+# Cross Maze using Fingertips only
 
 ## Setup
 Follow these steps:
