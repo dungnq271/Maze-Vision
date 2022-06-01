@@ -1,4 +1,4 @@
-# Cross Maze using Fingertips
+# Cross Maze using Fingertips only
 
 ## Setup
 Follow these steps:
@@ -10,7 +10,7 @@ Follow these steps:
 
 
 ## Play
-1. Open ```command prompt``` and cd ```path_to_repo```
+1. Open ```command prompt``` and ```cd path_to_repo```
 2. ```conda activate mvision```
 3. Run the following command ```python start_menu.py```
 
