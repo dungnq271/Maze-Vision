@@ -4,7 +4,7 @@ from random import randint
 import cv2
 from PIL import Image
 import numpy as np
-import vlc
+import pygame
 
 images_dir = 'images/'
 audio_dir = 'audio/'
@@ -21,7 +21,8 @@ def add_effect(w, h):
 
 
 def play_audio(audio):
-    p = vlc.MediaPlayer(audio)
-    p.play()
+    pygame.mixer.init()
+    pygame.mixer.music.load(audio)
+    pygame.mixer.music.play()
 
 
