@@ -1,5 +1,8 @@
 # Cross Maze using Fingertips only
 
+Our project for Club's Day at FPT University
+
+
 ## Setup
 Follow these steps:
 1. ```git clone https://github.com/dungnq271/Maze-Vision.git```
