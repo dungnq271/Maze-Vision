@@ -2,6 +2,7 @@
 
 Our project for Club's Day at FPT University
 
+https://user-images.githubusercontent.com/51025577/171326206-d20d6e00-0be6-4a03-9184-7ebcf3f12578.mp4
 
 ## Setup
 Follow these steps:
